@@ -1,6 +1,8 @@
 package be.howest.nmct.parking;
 
 
+import android.app.ListFragment;
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -11,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -28,6 +31,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,28 +39,43 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class LijstParkingsFragment extends Fragment {
+public class LijstParkingsFragment extends ListFragment {
 
 
+    static Parking geselecteerdeParking;
     HttpClient client;
     String Url = "http://datatank.gent.be/Mobiliteitsbedrijf/Parkings.json";
     JSONObject json;
     JSONObject json2;
-    JSONObject json3;
     JSONArray array;
-    List<Parking> parkingArray = new ArrayList<Parking>();
+    ArrayList<Parking> parkingArray = new ArrayList<Parking>();
+    ProgressDialog pDialog;
+    private ParkingAdapter pAdapter;
 
     public LijstParkingsFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        DetailsFragment df = new DetailsFragment();
+        getFragmentManager().beginTransaction()
+                            .replace(R.id.container, df, null)
+                            .addToBackStack(null)
+                            .commit();
+        geselecteerdeParking = parkingArray.get(position);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         client = new DefaultHttpClient();
-        new Read().execute("parkings");
+        if(parkingArray.size() <= 0)
+        {
+            new Read().execute("parkings");
+        }
+
         return inflater.inflate(R.layout.fragment_lijst_parkings, container, false);
 
     }
@@ -80,6 +99,17 @@ public class LijstParkingsFragment extends Fragment {
 
 
     public class Read extends AsyncTask<String, Integer, String> {
+
+        @Override
+        protected void onPreExecute() {
+
+            super.onPreExecute();
+            pDialog = new ProgressDialog(getActivity());
+            pDialog.setMessage("Bezig met parkings op te halen...");
+            pDialog.setCancelable(false);
+            pDialog.show();
+
+        }
 
         @Override
         protected String doInBackground(String... params) {
@@ -110,8 +140,12 @@ public class LijstParkingsFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(String s) {
+        protected void onPostExecute(String s)
+        {
             super.onPostExecute(s);
+            if(pDialog.isShowing())pDialog.dismiss();
+            ParkingAdapter pAdapter = new ParkingAdapter(getActivity(), parkingArray);
+            setListAdapter(pAdapter);
         }
     }
 
@@ -134,5 +168,7 @@ public class LijstParkingsFragment extends Fragment {
         }
         return p;
     }
+
+
 
 }
