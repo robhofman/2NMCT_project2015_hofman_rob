@@ -11,6 +11,7 @@ public class Parking {
     String description;
     String address;
     String openingsHours;
+    String contact;
     boolean open;
     int totalCapacity;
     int availableCapacity;

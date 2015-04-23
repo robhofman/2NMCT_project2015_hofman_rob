@@ -153,10 +153,11 @@ public class LijstParkingsFragment extends ListFragment {
     {
         Parking p = new Parking();
         try {
-            p.name = obj.getString("name");
-            p.description = obj.getString("description");
-            p.address = obj.getString("address");
-            p.openingsHours = obj.getString("openingHours");
+            p.name = extractHtml(obj.getString("name"));
+            p.description = extractHtml(obj.getString("description"));
+            p.address = extractHtml(obj.getString("address"));
+            p.contact = extractHtml(obj.getString("contactInfo"));
+            p.openingsHours = extractHtml(obj.getString("openingHours"));
             p.open = obj.getBoolean("open");
             p.availableCapacity = obj.getInt("availableCapacity");
             p.latitude = obj.getDouble("latitude");
@@ -167,6 +168,11 @@ public class LijstParkingsFragment extends ListFragment {
             e.printStackTrace();
         }
         return p;
+    }
+
+    private String extractHtml(String s){
+        String nohtml = s.replaceAll("\\<.*?>","");
+        return nohtml;
     }
 
 
