@@ -1,6 +1,7 @@
 package be.howest.nmct.parking;
 
 
+import android.app.Activity;
 import android.app.ListFragment;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
@@ -39,7 +40,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class LijstParkingsFragment extends ListFragment {
+public class LijstParkingsFragment extends ListFragment{
 
 
     static Parking geselecteerdeParking;
@@ -51,6 +52,7 @@ public class LijstParkingsFragment extends ListFragment {
     ArrayList<Parking> parkingArray = new ArrayList<Parking>();
     ProgressDialog pDialog;
     private ParkingAdapter pAdapter;
+    ParkingLijstFragmentListener listener;
 
     public LijstParkingsFragment() {
         // Required empty public constructor
@@ -58,12 +60,12 @@ public class LijstParkingsFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        DetailsFragment df = new DetailsFragment();
-        getFragmentManager().beginTransaction()
-                            .replace(R.id.container, df, null)
-                            .addToBackStack(null)
-                            .commit();
+
         geselecteerdeParking = parkingArray.get(position);
+        if(geselecteerdeParking != null)
+        {
+            listener.onSelectParkingListener(geselecteerdeParking);
+        }
     }
 
     @Override
@@ -78,6 +80,17 @@ public class LijstParkingsFragment extends ListFragment {
 
         return inflater.inflate(R.layout.fragment_lijst_parkings, container, false);
 
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try{
+            this.listener = (ParkingLijstFragmentListener) activity;
+        }
+        catch (Exception e){
+            throw new ClassCastException(activity.toString()+"de Parkinglijst interface is niet goed geimplementeerd");
+        }
     }
 
     public JSONObject inlezenURL(String url) throws IOException, JSONException
@@ -176,5 +189,7 @@ public class LijstParkingsFragment extends ListFragment {
     }
 
 
-
+    public interface ParkingLijstFragmentListener{
+        public void onSelectParkingListener(Parking p);
+    }
 }

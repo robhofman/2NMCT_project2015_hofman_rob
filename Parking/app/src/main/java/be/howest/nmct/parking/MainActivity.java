@@ -35,19 +35,21 @@ import java.net.URL;
 import java.util.ArrayList;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements LijstParkingsFragment.ParkingLijstFragmentListener {
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        LijstParkingsFragment lpf = new LijstParkingsFragment();
+        if(savedInstanceState==null){
+            LijstParkingsFragment lpf = new LijstParkingsFragment();
 
-        FragmentManager fMgr = getFragmentManager();
-        FragmentTransaction fTr = fMgr.beginTransaction();
-        fTr.add(R.id.container, lpf, "lijst");
-        fTr.commit();
+            FragmentManager fMgr = getFragmentManager();
+            FragmentTransaction fTr = fMgr.beginTransaction();
+            fTr.add(R.id.container, lpf, "lijst");
+            fTr.commit();
+        }
 
 
     }
@@ -72,5 +74,15 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    public void onSelectParkingListener(Parking p) {
+        DetailsFragment df = new DetailsFragment();
+        getFragmentManager().beginTransaction()
+                .replace(R.id.container, df, null)
+                .addToBackStack(null)
+                .commit();
     }
 }
